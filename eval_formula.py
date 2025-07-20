@@ -5,32 +5,25 @@ class Node:
         self.left = left
         self.right = right
 
-    def evaluate(self) -> bool:
-        if self.value == '0':
-            return False
-        elif self.value == '1':
-            return True
-        elif self.value == '!':
-            return not self.left.evaluate()
-        elif self.value == '&':
-            return self.left.evaluate() and self.right.evaluate()
-        elif self.value == '|':
-            return self.left.evaluate() or self.right.evaluate()
-        elif self.value == '^':
-            return self.left.evaluate() != self.right.evaluate()
-        elif self.value == '>':
-            return (not self.left.evaluate()) or self.right.evaluate()
-        elif self.value == '=':
-            return self.left.evaluate() == self.right.evaluate()
-        else:
-            raise ValueError(f"Opérateur inconnu : {self.value}")
-
-    # def pretty_print(self, indent=""):
-    #     if self.right:
-    #         self.right.pretty_print(indent + "   ")
-    #     print(indent + self.value)
-    #     if self.left:
-    #         self.left.pretty_print(indent + "   ")
+def evaluate(node: Node) -> bool:
+    if node.value == '0':
+        return False
+    elif node.value == '1':
+        return True
+    elif node.value == '!':
+        return not evaluate(node.left)
+    elif node.value == '&':
+        return evaluate(node.left) and evaluate(node.right)
+    elif node.value == '|':
+        return evaluate(node.left) or evaluate(node.right)
+    elif node.value == '^':
+        return evaluate(node.left) != evaluate(node.right)
+    elif node.value == '>':
+        return (not evaluate(node.left)) or evaluate(node.right)
+    elif node.value == '=':
+        return evaluate(node.left) == evaluate(node.right)
+    else:
+        raise ValueError(f"Opérateur inconnu : {node.value}")
 
 
 def parse_rpn_to_ast(formula: str) -> Node:
@@ -67,7 +60,7 @@ if __name__ == "__main__":
     for formula in test_formulas:
         try:
             ast = parse_rpn_to_ast(formula)
-            result = ast.evaluate()
+            result = evaluate(ast)
             print(f"{result}")
         except Exception as e:
             print(f"Erreur : {e}")

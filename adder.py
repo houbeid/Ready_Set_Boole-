@@ -5,7 +5,7 @@ def adder(a: int, b: int) -> int:
         b = c << 1
     return a;
 def main():
-    print(adder(11, 155))  # 7
+    print(adder(1000, 155))  # 7
 
 if __name__ == "__main__":
     main()

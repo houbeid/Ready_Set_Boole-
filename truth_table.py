@@ -1,6 +1,5 @@
 import itertools
 
-# AST Node classes
 class ASTNode:
     pass
 
@@ -41,7 +40,6 @@ class Equiv(ASTNode):
         self.left = left
         self.right = right
 
-# Build AST from formula string
 def build_ast(formula):
     stack = []
     for c in formula:
@@ -80,7 +78,6 @@ def build_ast(formula):
         raise ValueError("Formule invalide")
     return stack[0]
 
-# Évaluer l'AST pour un dictionnaire de valeurs
 def eval_ast(node, env):
     if isinstance(node, Const):
         return node.value
@@ -99,9 +96,7 @@ def eval_ast(node, env):
     elif isinstance(node, Equiv):
         return eval_ast(node.left, env) == eval_ast(node.right, env)
 
-# Fonction principale
 def print_truth_table(formula: str):
-    # Extraire les variables en gardant l'ordre
     variables = sorted(set([c for c in formula if 'A' <= c <= 'Z']))
 
     try:
@@ -110,12 +105,10 @@ def print_truth_table(formula: str):
         print(f"Erreur : {e}")
         return
 
-    # En-tête
     header = " | ".join(variables) + " | = |"
     print(f"| {header}")
     print("|" + "---|" * (len(variables) + 1))
 
-    # Générer toutes les combinaisons possibles (2^n)
     for values in itertools.product([False, True], repeat=len(variables)):
         env = dict(zip(variables, values))
         try:
@@ -125,6 +118,5 @@ def print_truth_table(formula: str):
         row = " | ".join(str(int(env[var])) for var in variables)
         print(f"| {row} | {int(result)} |")
 
-# Exemple d'utilisation
 if __name__ == "__main__":
-    print_truth_table("AB&C|")  # équivalent à (A ∧ B) ∨ C
+    print_truth_table("AB&CE|&")
