@@ -11,12 +11,27 @@ def rpn_to_tree(rpn):
         if c.isalpha():
             stack.append(Node(c))
         elif c == '!':
-            node = stack.pop()
-            stack.append(Node('!', left=node))
-        elif c in '&|':
+            stack.append(Node('!', left=stack.pop()))
+        elif c in ['&', '|']:
             right = stack.pop()
             left = stack.pop()
             stack.append(Node(c, left, right))
+        elif c == '>':
+            right = stack.pop()
+            left = stack.pop()
+            # A > B == !A | B
+            stack.append(Node('|', Node('!', left), right))
+        elif c == '=':
+            right = stack.pop()
+            left = stack.pop()
+            # A = B == (A & B) | (!A & !B)
+            stack.append(Node('|',
+                              Node('&', left, right),
+                              Node('&', Node('!', left), Node('!', right))))
+        else:
+            raise ValueError(f"Invalid character: {c}")
+    if len(stack) != 1:
+        raise ValueError("Invalid formula")
     return stack[0]
 
 

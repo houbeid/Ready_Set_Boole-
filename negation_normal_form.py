@@ -15,11 +15,24 @@ def rpn_to_tree(rpn):
             right = stack.pop()
             left = stack.pop()
             stack.append(Node(c, left, right))
+        elif c == '>':
+            right = stack.pop()
+            left = stack.pop()
+            # A > B == !A | B
+            stack.append(Node('|', Node('!', left), right))
+        elif c == '=':
+            right = stack.pop()
+            left = stack.pop()
+            # A = B == (A & B) | (!A & !B)
+            stack.append(Node('|',
+                              Node('&', left, right),
+                              Node('&', Node('!', left), Node('!', right))))
         else:
             raise ValueError(f"Invalid character: {c}")
     if len(stack) != 1:
         raise ValueError("Invalid formula")
     return stack[0]
+
 
 def push_negation(node):
     if node.value == '!':
@@ -51,7 +64,7 @@ def negation_normal_form(rpn_formula):
     return tree_to_rpn(nnf_tree)
 
 if __name__ == "__main__":
-    rpn = "AB|C&!"
+    rpn = "AB="
     try:
         print(f"// {negation_normal_form(rpn)}")
     except Exception as e:
