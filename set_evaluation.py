@@ -1,12 +1,10 @@
-def evaluate_rpn(formula: str, sets: list[set]) -> set:
-    # Vérification de base : nombre de variables vs. ensembles fournis
+def evaluate_rpn(formula: str, sets: list[list[int]]) -> list[int]:
     letters_in_formula = {c for c in formula if c.isalpha()}
     if len(letters_in_formula) != len(sets):
         print("Erreur : Nombre d'ensembles fourni ne correspond pas aux variables utilisées.")
-        return set()
+        return []
 
-    # Associer A, B, C... aux ensembles donnés
-    variable_sets = {chr(ord('A') + i): s for i, s in enumerate(sets)}
+    variable_sets = {chr(ord('A') + i): set(s) for i, s in enumerate(sets)}
     global_universe = set().union(*sets)
 
     stack = []
@@ -16,49 +14,46 @@ def evaluate_rpn(formula: str, sets: list[set]) -> set:
             stack.append(variable_sets[c])
         elif c == '!':
             a = stack.pop()
-            stack.append(global_universe - a)  # complément
+            stack.append(global_universe - a)
         elif c == '&':
             b = stack.pop()
             a = stack.pop()
-            stack.append(a.intersection(b))
+            stack.append(a & b)
         elif c == '|':
             b = stack.pop()
             a = stack.pop()
-            stack.append(a.union(b))
+            stack.append(a | b)
         elif c == '^':
             b = stack.pop()
             a = stack.pop()
-            stack.append((a - b).union(b - a))  # XOR
+            stack.append((a - b) | (b - a))
         elif c == '>':
             b = stack.pop()
             a = stack.pop()
-            stack.append(global_universe - a.union(b))  # implication
+            stack.append(global_universe - a | b)
         elif c == '=':
             b = stack.pop()
             a = stack.pop()
-            inter = a.intersection(b)
-            union = global_universe - ((a - b).union(b - a))
-            stack.append(inter.union(union))  # équivalence
+            stack.append(global_universe - ((a - b) | (b - a)))
         else:
             print(f"Erreur : caractère invalide '{c}' ignoré.")
 
     if len(stack) != 1:
         print("Erreur : Formule invalide, reste des éléments dans la pile.")
-        return set()
+        return []
 
-    return stack.pop()
+    return sorted(stack.pop())
 
 
 def main():
-    A = {1, 2, 3}
-    B = {3, 4, 5}
-    formula = 'AB&'  # Négation de (A union B)
-    result = evaluate_rpn(formula, [A, B])
+    sets = [
+        [0, 1, 2],
+        [2, 3, 4]
+    ]
+    formula = 'AB|'
+    result = evaluate_rpn(formula, sets)
 
-    print(f"Formule : {formula}")
-    print(f"A = {A}")
-    print(f"B = {B}")
-    print(f"Résultat final : {result}")
+    print(f"// {result}")
 
 
 if __name__ == "__main__":
